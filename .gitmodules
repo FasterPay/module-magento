@@ -1,3 +1,0 @@
-[submodule "src/lib/fasterpay-php"]
-	path = src/lib/fasterpay-php
-	url = git@github.com:FasterPay/fasterpay-php.git
