@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<layout>
+    <!-- Layout settings for FasterPay controller -->
+    <fasterpay_payment_fasterpay>
+        <reference name="head">
+            <action method="setTitle">
+                <title>FasterPay Checkout</title>
+            </action>
+        </reference>
+        <remove name="right"/>
+        <remove name="left"/>
+
+        <block type="fasterpay/checkout_form_method_fasterpay" name="root" output="toHtml" template="fasterpay/checkout/form/method/fasterpay.phtml"/>
+    </fasterpay_payment_fasterpay>
+</layout>
