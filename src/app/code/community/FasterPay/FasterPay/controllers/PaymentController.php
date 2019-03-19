@@ -13,8 +13,6 @@ class FasterPay_FasterPay_PaymentController extends Mage_Core_Controller_Front_A
      */
     public function ipnAction()
     {
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
         $result = Mage::getModel('fasterpay/pingback')->handlePingback();
         $this->getResponse()->setBody($result);
     }

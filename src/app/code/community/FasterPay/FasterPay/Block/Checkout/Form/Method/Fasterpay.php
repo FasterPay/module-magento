@@ -12,6 +12,17 @@ class FasterPay_FasterPay_Block_Checkout_Form_Method_Fasterpay extends FasterPay
      */
     protected function _construct()
     {
+        $mark = Mage::getConfig()->getBlockClassName('core/template');
+        $mark = new $mark;
+        $mark->setTemplate('fasterpay/checkout/form/mark.phtml');
+        $mark->setPaymentTitleAlias(Mage::getModel('fasterpay/method_fasterpay')->getConfigData('title'));
+        $mark->setPaymentLogoSrc($this->getSkinUrl('images/fasterpay/logo.png'));
+        $mark->setVisaLogoSrc($this->getSkinUrl('images/fasterpay/visa.svg'));
+        $mark->setMCLogoSrc($this->getSkinUrl('images/fasterpay/mc.svg'));
+
+        $this->setMethodTitle('');
+        $this->setMethodLabelAfterHtml($mark->toHtml());
+
         parent::_construct();
         $this->setPaymentModelName('fasterpay');
     }
