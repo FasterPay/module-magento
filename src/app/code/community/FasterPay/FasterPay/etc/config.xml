@@ -50,7 +50,6 @@
                 <fee_payer>buyer</fee_payer>
                 <allowspecific>0</allowspecific>
                 <fasterpay_istest>0</fasterpay_istest>
-                <fasterpay_delivery>1</fasterpay_delivery>
                 <debug_mode>0</debug_mode>
             </fasterpay_fasterpay>
         </payment>
