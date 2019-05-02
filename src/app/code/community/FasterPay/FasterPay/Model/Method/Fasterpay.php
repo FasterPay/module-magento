@@ -2,6 +2,8 @@
 
 class FasterPay_FasterPay_Model_Method_Fasterpay extends FasterPay_FasterPay_Model_Method_Abstract {
 
+    const MODULE_SOURCE = 'magento1';
+
     protected $_isInitializeNeeded = false;
     protected $_canUseInternal = false;
     protected $_canUseForMultishipping = false;
@@ -35,7 +37,8 @@ class FasterPay_FasterPay_Model_Method_Fasterpay extends FasterPay_FasterPay_Mod
                 'amount' => $order->getGrandTotal(),
                 'currency' => $order->getOrderCurrencyCode(),
                 'merchant_order_id' => $order->getIncrementId(),
-                'success_url' => $this->getConfigData('fasterpay_url') ? $this->getConfigData('fasterpay_ur') : Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK) . '/checkout/onepage/success/'
+                'success_url' => $this->getConfigData('fasterpay_url') ? $this->getConfigData('fasterpay_ur') : Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK) . '/checkout/onepage/success/',
+                'module_source' => self::MODULE_SOURCE
             )
         );
 
