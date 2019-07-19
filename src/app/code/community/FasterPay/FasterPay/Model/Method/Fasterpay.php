@@ -38,7 +38,8 @@ class FasterPay_FasterPay_Model_Method_Fasterpay extends FasterPay_FasterPay_Mod
                 'currency' => $order->getOrderCurrencyCode(),
                 'merchant_order_id' => $order->getIncrementId(),
                 'success_url' => $this->getConfigData('fasterpay_url') ? $this->getConfigData('fasterpay_ur') : Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK) . '/checkout/onepage/success/',
-                'module_source' => self::MODULE_SOURCE
+                'module_source' => self::MODULE_SOURCE,
+                'sign_version' => FasterPay\Services\Signature::SIGN_VERSION_2
             )
         );
 
