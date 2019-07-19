@@ -13,10 +13,32 @@ class FasterPay_FasterPay_Model_Pingback extends Mage_Core_Model_Abstract
      */
     public function handlePingback()
     {
-        $xapiKey = Mage::app()->getRequest()->getHeader('x-apikey');
+        $signVersion = Mage::app()->getRequest()->getHeader('x-fasterpay-signature-version');
+        if (empty($signVersion)) {
+            $signVersion = \FasterPay\Services\Signature::SIGN_VERSION_1;
+        }
 
-        if (empty($xapiKey)) {
-            return '';
+        $pingbackData = null;
+
+        switch ($signVersion) {
+            case \FasterPay\Services\Signature::SIGN_VERSION_1:
+                $validationParams = array('apiKey' => Mage::app()->getRequest()->getHeader('x-apikey'));
+                $pingbackData = Mage::app()->getRequest()->getParams();
+                break;
+            case \FasterPay\Services\Signature::SIGN_VERSION_2:
+                $validationParams = [
+                    'pingbackData' => Mage::app()->getRequest()->getRawBody(),
+                    'signVersion' => $signVersion,
+                    'signature' => Mage::app()->getRequest()->getHeader('x-fasterpay-signature'),
+                ];
+                $pingbackData = json_decode(Mage::app()->getRequest()->getRawBody(), 1);
+                break;
+            default:
+                exit('NOK');
+        }
+
+        if (empty($pingbackData)) {
+            exit('NOK');
         }
 
         $fasterpay = new \FasterPay\Gateway(array(
@@ -24,51 +46,22 @@ class FasterPay_FasterPay_Model_Pingback extends Mage_Core_Model_Abstract
             'privateKey'    => Mage::getModel('fasterpay/method_fasterpay')->getConfigData('fasterpay_private_key'),
         ));
 
-        if (!$fasterpay->pingback()->validate(array('apiKey' => $xapiKey))) {
-            return '';
+        if (!$fasterpay->pingback()->validate($validationParams)) {
+            exit('NOK');
         }
 
-        $order = Mage::getModel('sales/order')->loadByIncrementId(Mage::app()->getRequest()->getParam('payment_order')['merchant_order_id']);
+        $order = Mage::getModel('sales/order')->loadByIncrementId($pingbackData['payment_order']['merchant_order_id']);
         if (empty($order) || empty($order->getId())) {
             die("Order invalid");
         }
 
-        if ($this->isRecurring()) {
-            return $this->processPingbackRecurringProfile();
-        } else {
-            return $this->processPingbackOrder();
-        }
-
-        return '';
-    }
-
-    protected function processPingbackRecurringProfile()
-    {
-        $recurringProfile = Mage::getModel('sales/recurring_profile')->loadByInternalReferenceId($pingback->getProductId());
-
-        if ($recurringProfile->getId()) {
-            try {
-                if ($pingback->isDeliverable()) {
-                    $recurringProfile->setState(Mage_Sales_Model_Recurring_Profile::STATE_ACTIVE)->save();
-                } elseif ($pingback->isCancelable()) {
-                    $recurringProfile->cancel()->save();
-                }
-                return self::DEFAULT_PINGBACK_RESPONSE;
-            } catch (Exception $e) {
-                Mage::log($e->getMessage());
-                $result = 'Internal server error';
-                $result .= ' ' . $e->getMessage();
-                return $result;
-            }
-        } else {
-            return 'The Recurring Profile is invalid';
-        }
+        return $this->processPingbackOrder($pingbackData);
 
     }
 
-    protected function processPingbackOrder()
+    protected function processPingbackOrder($pingbackData = array())
     {
-        $pingbackPaymentOrder = Mage::app()->getRequest()->getParam('payment_order');
+        $pingbackPaymentOrder = $pingbackData['payment_order'];
         $order = Mage::getModel('sales/order')->loadByIncrementId($pingbackPaymentOrder['merchant_order_id']);
         if ($order->getId()) {
 
