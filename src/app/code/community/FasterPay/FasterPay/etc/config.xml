@@ -39,6 +39,26 @@
                 <class>FasterPay_FasterPay_Helper</class>
             </fasterpay>
         </helpers>
+        <events>
+            <sales_order_shipment_track_save_after>
+                <observers>
+                    <fasterpay_fasterpay>
+                        <type>singleton</type>
+                        <class>FasterPay_FasterPay_Model_Observer</class>
+                        <method>updateDeliveryData</method>
+                    </fasterpay_fasterpay>
+                </observers>
+            </sales_order_shipment_track_save_after>
+            <sales_order_save_after>
+                <observers>
+                    <fasterpay_fasterpay>
+                        <type>singleton</type>
+                        <class>FasterPay_FasterPay_Model_Observer</class>
+                        <method>updateDeliveryData</method>
+                    </fasterpay_fasterpay>
+                </observers>
+            </sales_order_save_after>
+        </events>
     </global>
     <default>
         <payment>

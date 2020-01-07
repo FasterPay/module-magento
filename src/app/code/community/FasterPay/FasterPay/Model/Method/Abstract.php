@@ -10,6 +10,7 @@ class FasterPay_FasterPay_Model_Method_Abstract extends Mage_Payment_Model_Metho
 
     protected $_code;
     protected $_logFile = 'fasterpay.log';
+    protected $_gw;
 
     /**
      * @param string $code
@@ -24,11 +25,17 @@ class FasterPay_FasterPay_Model_Method_Abstract extends Mage_Payment_Model_Metho
         $this->setData('original_code', $code);
     }
 
-    public function initFasterpayConfig($pingback = false) {
-        $gateway = new FasterPay\Gateway(array(
-            'publicKey' 	=> $this->getConfigData('fasterpay_public_key'),
-            'privateKey'	=> $this->getConfigData('fasterpay_private_key'),
-        ));
+    public function getGateway()
+    {
+        if (!$this->_gw) {
+            $this->_gw = new FasterPay\Gateway(array(
+                'publicKey'     => $this->getConfigData('fasterpay_public_key'),
+                'privateKey'    => $this->getConfigData('fasterpay_private_key'),
+                'isTest'        => $this->getConfigData('fasterpay_istest')
+            ));
+        }
+
+        return $this->_gw;
     }
 
     public function getMethodCode() {
