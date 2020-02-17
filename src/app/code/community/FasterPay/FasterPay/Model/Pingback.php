@@ -41,13 +41,14 @@ class FasterPay_FasterPay_Model_Pingback extends Mage_Core_Model_Abstract
             exit('NOK');
         }
 
-        $fasterpay = new \FasterPay\Gateway(array(
-            'publicKey'     => Mage::getModel('fasterpay/method_fasterpay')->getConfigData('fasterpay_public_key'),
-            'privateKey'    => Mage::getModel('fasterpay/method_fasterpay')->getConfigData('fasterpay_private_key'),
-        ));
+        $fasterpay = Mage::getModel('fasterpay/method_fasterpay')->getGateway();
 
         if (!$fasterpay->pingback()->validate($validationParams)) {
             exit('NOK');
+        }
+
+        if ($pingbackData['event'] != 'payment') {
+            exit('OK');
         }
 
         $order = Mage::getModel('sales/order')->loadByIncrementId($pingbackData['payment_order']['merchant_order_id']);
@@ -89,6 +90,13 @@ class FasterPay_FasterPay_Model_Pingback extends Mage_Core_Model_Abstract
                         $paymentModel->makeInvoice($pingbackPaymentOrder['id']);
                     }
 
+                    if ($order->getIsVirtual()) {
+                        $deliveryStatus = FasterPay_FasterPay_Model_Method_Fasterpay::DELIVERY_STATUS_DELIVERED;
+                    } else {
+                        $deliveryStatus = FasterPay_FasterPay_Model_Method_Fasterpay::DELIVERY_STATUS_ORDER_PLACED;
+                    }
+
+                    Mage::getModel('fasterpay/method_fasterpay')->sendDeliveryInformation($order, $deliveryStatus);
                 }
 
                 return self::DEFAULT_PINGBACK_RESPONSE;
